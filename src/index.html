@@ -1,13 +1,152 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Webpelis</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://kit.fontawesome.com/bf7e2ba98b.js" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
+    <title>Peliculas</title>
 </head>
 <body>
-  <app-root></app-root>
+
+    <div class="container">
+
+        <div class="cabecera">
+
+            <div class="logo"><h1><a href="index.html">SASTRE</a></h1></div>
+            
+            <div class="buscadorDiv">
+                <input class="buscador" id="busqueda" type="text" placeholder="Que pelicula buscas">
+            </div>
+
+            <div class="cuenta">
+
+            </div>
+
+            <div class="perfilDiv">
+
+                <div class="perfil">
+                    <i class="fa-solid fa-user fa-2x"></i>
+                </div>
+
+             </div>
+
+        </div>
+
+        <div class="portadas">
+
+        </div>
+
+        <div id="peliculas">
+            
+        </div>
+
+        <div class="paginas">
+            <button  id="paginaAnterior" class="boton">Anterior</button>
+            <button  id="paginaSiguiente" class="boton">Siguiente</button>
+        </div>
+
+        <div id="info-pelicula">
+            <p><h2><span id="titulo-pelicula"></span></p></h2>
+            <p><strong>Fecha de Lanzamiento:</strong> <span id="fecha-lanzamiento"></span></p>
+            <p><strong>Descripción:</strong> <span id="descripcion-pelicula"></span></p>
+        </div>
+
+    </div>
+    <script>
+      
+       const apiKey = '956815bf408e16719beca1d8375ac150';
+        const peliculasDiv = document.getElementById('peliculas');
+        let page = 1;
+
+        async function buscarPeliculas(textoBusqueda) {
+            try {
+                const url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=es&query=${textoBusqueda}&page=${page}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                const peliculas = data.results;
+
+                peliculasDiv.innerHTML = ''; // Limpia el contenido actual del div
+
+                peliculas.forEach((pelicula) => {
+                    const contenedor = document.createElement('div');
+                    contenedor.classList.add('ejemplo');
+                    contenedor.style.backgroundImage = `url(https://image.tmdb.org/t/p/w500${pelicula.poster_path})`;
+                    peliculasDiv.appendChild(contenedor);
+                    contenedor.addEventListener('click', () => mostrarInformacionPelicula(pelicula));
+                    
+                });
+            } catch (error) {
+                console.error('Error al buscar películas:', error);
+            }
+        }
+
+        async function obtenerYMostrarPeliculas() {
+            try {
+                const url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=es&sort_by=popularity.desc&page=${page}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                const peliculas = data.results;
+
+                peliculasDiv.innerHTML = ''; // Limpia el contenido actual del div
+
+                peliculas.forEach((pelicula) => {
+                    const contenedor = document.createElement('div');
+                    contenedor.classList.add('ejemplo');
+                    
+                    contenedor.style.backgroundImage = `url(https://image.tmdb.org/t/p/w500${pelicula.poster_path})`;
+                    
+                    peliculasDiv.appendChild(contenedor);
+                    contenedor.addEventListener('click', () => mostrarInformacionPelicula(pelicula));
+                    
+                });
+            } catch (error) {
+                console.error('Error al obtener las películas:', error);
+            }
+        }
+
+        obtenerYMostrarPeliculas(); 
+
+        const botonSiguiente = document.getElementById('paginaSiguiente');
+        botonSiguiente.addEventListener('click', () => {
+            page++; 
+            obtenerYMostrarPeliculas();
+        });
+
+        const botonAnterior = document.getElementById('paginaAnterior');
+        botonAnterior.addEventListener('click', () => {
+            if(page!=1){
+                page--; 
+            }
+            obtenerYMostrarPeliculas();
+        });
+
+        const barraBusqueda = document.getElementById('busqueda');
+        barraBusqueda.addEventListener('input', () => {
+            page = 1;
+            const textoBusqueda = barraBusqueda.value.trim().toLowerCase();
+            if (textoBusqueda.length > 0) {
+                buscarPeliculas(textoBusqueda); // Realiza la búsqueda y muestra las películas filtradas
+            } else {
+                obtenerYMostrarPeliculas(); // Si no hay texto de búsqueda, muestra todas las películas
+            }
+        });
+
+        function mostrarInformacionPelicula(pelicula) {
+            const infoPeliculaDiv = document.getElementById('info-pelicula');
+            const tituloPelicula = document.getElementById('titulo-pelicula');
+            const fechaLanzamiento = document.getElementById('fecha-lanzamiento');
+            const descripcionPelicula = document.getElementById('descripcion-pelicula');
+
+            tituloPelicula.textContent = pelicula.title;
+            fechaLanzamiento.textContent = pelicula.release_date;
+            descripcionPelicula.textContent = pelicula.overview;
+
+            infoPeliculaDiv.style.display = 'block'; // Mostrar la información de la película
+        }
+      
+    </script>
 </body>
 </html>
